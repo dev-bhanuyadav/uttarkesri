@@ -1,0 +1,23 @@
+{
+  "common": {
+    "home": "Home",
+    "search": "Search",
+    "share": "Share",
+    "bookmark": "Bookmark",
+    "comments": "Comments",
+    "views": "Views",
+    "readMore": "Read more",
+    "breaking": "Breaking News",
+    "live": "LIVE"
+  },
+  "home": {
+    "latestNews": "Latest News",
+    "topStories": "Top Stories",
+    "trending": "Trending"
+  },
+  "article": {
+    "readTime": "min read",
+    "related": "Related stories",
+    "authorBox": "View all articles"
+  }
+}

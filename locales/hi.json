@@ -1,0 +1,23 @@
+{
+  "common": {
+    "home": "होम",
+    "search": "खोजें",
+    "share": "शेयर करें",
+    "bookmark": "बुकमार्क",
+    "comments": "टिप्पणियाँ",
+    "views": "व्यू",
+    "readMore": "पूरा पढ़ें",
+    "breaking": "ब्रेकिंग न्यूज़",
+    "live": "LIVE"
+  },
+  "home": {
+    "latestNews": "ताज़ा खबरें",
+    "topStories": "आज की बड़ी खबरें",
+    "trending": "सबसे ज़्यादा पढ़ी गई खबरें"
+  },
+  "article": {
+    "readTime": "मिनट का लेख",
+    "related": "संबंधित खबरें",
+    "authorBox": "इनके सभी लेख देखें"
+  }
+}

@@ -1,0 +1,300 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Article {
+  id               String         @id @default(cuid())
+  title            String
+  titleEn          String?
+  slug             String         @unique
+  excerpt          String
+  body             Json
+  bodyText         String
+  featuredImage    String
+  featuredImageAlt String
+  imageCaption     String?
+  photographer     String?
+
+  status       ArticleStatus @default(DRAFT)
+  articleType  ArticleType   @default(STANDARD)
+  isBreaking   Boolean       @default(false)
+  isLive       Boolean       @default(false)
+  isExclusive  Boolean       @default(false)
+  language     String        @default("hi")
+
+  category      Category   @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  subcategoryId String?
+  author        Author     @relation(fields: [authorId], references: [id])
+  authorId      String
+  tags          Tag[]      @relation("ArticleTags")
+  districts     District[] @relation("ArticleDistricts")
+  comments      Comment[]
+
+  viewCount    Int @default(0)
+  shareCount   Int @default(0)
+  likeCount    Int @default(0)
+  commentCount Int @default(0)
+  readDepth25  Int @default(0)
+  readDepth50  Int @default(0)
+  readDepth75  Int @default(0)
+  readDepth100 Int @default(0)
+
+  readTimeMinutes Int
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  seoTitle        String?
+  seoDescription  String?
+  ogImage         String?
+  canonicalUrl    String?
+  focusKeyword    String?
+  seoScore        Int?
+
+  hasCorrection   Boolean   @default(false)
+  correctionNote  String?
+  correctedAt     DateTime?
+
+  versions ArticleVersion[]
+}
+
+enum ArticleStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+  BREAKING
+}
+
+enum ArticleType {
+  STANDARD
+  VIDEO
+  PHOTO_GALLERY
+  LIVE_BLOG
+  FACT_CHECK
+  OPINION
+  SATIRE
+  SPONSORED
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  nameHi    String
+  nameEn    String
+  slug      String     @unique
+  parentId  String?
+  parent    Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children  Category[] @relation("SubCategories")
+  color     String
+  icon      String
+  sortOrder Int
+  isVisible Boolean    @default(true)
+  seoTitle  String?
+  seoDesc   String?
+  articles  Article[]
+}
+
+model Author {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  bio         String?
+  avatar      String?
+  designation String?
+  email       String   @unique
+  mobile      String?
+  socialLinks Json?
+  articleCount Int     @default(0)
+  articles    Article[]
+  userId      String?  @unique
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  mobile          String?   @unique
+  avatar          String?
+  role            UserRole  @default(READER)
+  isBanned        Boolean   @default(false)
+  banReason       String?
+  twoFactorSecret String?
+  lastLogin       DateTime?
+  createdAt       DateTime  @default(now())
+
+  language      String   @default("hi")
+  theme         String   @default("light")
+  districtPref  String?
+  categoryPrefs String[]
+
+  bookmarks   Bookmark[]
+  comments    Comment[]
+  author      Author?
+  pollVotes   PollVote[]
+}
+
+enum UserRole {
+  READER
+  REPORTER
+  PHOTOGRAPHER
+  SOCIAL_MANAGER
+  EDITOR
+  CHIEF_EDITOR
+  SUPER_ADMIN
+  ADVERTISER
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  articleId String
+  createdAt DateTime @default(now())
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  body       String
+  isApproved Boolean  @default(false)
+  isStaffPick Boolean @default(false)
+  isSpam     Boolean  @default(false)
+  spamScore  Float    @default(0)
+  likeCount  Int      @default(0)
+
+  article   Article  @relation(fields: [articleId], references: [id])
+  articleId String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  parentId  String?
+  parent    Comment? @relation("Replies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("Replies")
+
+  createdAt DateTime @default(now())
+}
+
+model TickerItem {
+  id          String   @id @default(cuid())
+  text        String
+  url         String?
+  sortOrder   Int
+  isActive    Boolean  @default(true)
+  duration    Int      @default(8)
+  createdAt   DateTime @default(now())
+  createdById String?
+}
+
+model Poll {
+  id         String    @id @default(cuid())
+  question  String
+  options    Json
+  totalVotes Int       @default(0)
+  isActive   Boolean   @default(true)
+  endsAt     DateTime?
+  createdAt  DateTime  @default(now())
+  votes      PollVote[]
+}
+
+model PollVote {
+  id          String   @id @default(cuid())
+  poll        Poll     @relation(fields: [pollId], references: [id])
+  pollId      String
+  optionId    String
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+  ipAddress   String
+  fingerprint String?
+  createdAt   DateTime @default(now())
+
+  @@unique([pollId, ipAddress])
+}
+
+model Ad {
+  id          String   @id @default(cuid())
+  name        String
+  slot        AdSlot
+  imageUrl    String?
+  targetUrl   String?
+  adCode      String?
+  isActive    Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  clicks      Int      @default(0)
+  impressions Int      @default(0)
+}
+
+enum AdSlot {
+  HEADER_LEADERBOARD
+  ARTICLE_RECTANGLE
+  ARTICLE_LEADERBOARD
+  SIDEBAR_HALF_PAGE
+  HOMEPAGE_BILLBOARD
+  FOOTER_LEADERBOARD
+}
+
+model District {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  nameHi   String    @unique
+  slug     String    @unique
+  division String
+  articles Article[] @relation("ArticleDistricts")
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  nameHi    String
+  nameEn    String?
+  slug      String    @unique
+  articles  Article[] @relation("ArticleTags")
+}
+
+model ArticleVersion {
+  id        String   @id @default(cuid())
+  article   Article  @relation(fields: [articleId], references: [id])
+  articleId String
+  body      Json
+  createdAt DateTime @default(now())
+}
+
+model PageLayout {
+  id            String   @id @default(cuid())
+  pageSlug      String   @unique
+  pageName      String
+  layoutJson    Json
+  publishedJson Json?
+  isDraft       Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+  updatedBy     String?
+  versions      PageLayoutVersion[]
+}
+
+model PageLayoutVersion {
+  id          String     @id @default(cuid())
+  layout      PageLayout @relation(fields: [layoutId], references: [id], onDelete: Cascade)
+  layoutId    String
+  snapshot    Json
+  savedAt     DateTime   @default(now())
+  savedBy     String?
+  savedByName String?
+  label       String?
+}
+
+model GlobalTheme {
+  id        String   @id @default(cuid())
+  name      String
+  themeJson Json
+  isActive  Boolean  @default(false)
+  isPreset  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  createdBy String?
+}
