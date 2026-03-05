@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/trending-refresh",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 2 * * *"
     },
     {
       "path": "/api/cron/sitemap",
