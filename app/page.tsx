@@ -66,14 +66,18 @@ async function getHomeData() {
   const heroMain = serialized[0];
   const heroSide = serialized.slice(1, 5);
   const latestArticles = serialized.slice(5, 17);
-  const builderLayout = pageLayout?.publishedJson as PageLayoutConfig | null;
+  const rawLayout = pageLayout?.publishedJson;
+  const builderLayout: PageLayoutConfig | null =
+    rawLayout && typeof rawLayout === 'object'
+      ? (JSON.parse(JSON.stringify(rawLayout)) as PageLayoutConfig)
+      : null;
 
   return {
     heroMain: heroMain ?? serialized[0],
     heroSide: heroSide.length ? heroSide : serialized.slice(1, 5),
     latestArticles: latestArticles.length ? latestArticles : serialized.slice(5),
     tickerItems,
-    builderLayout: builderLayout ?? null,
+    builderLayout,
     articles: serialized,
   };
 }
